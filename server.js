@@ -1,28 +1,14 @@
-require('dotenv').config()
-const { OpenAI } = require('openai')
+const express = require('express')
+const cors = require('cors')
+const { generateText, generateImage } = require('./controller/openaiController')
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_KEY });
+const app = express()
+app.listen(4000, () => console.log('listening port 4000'))
 
-const generateText = async (prompt) => {
-  const desc = await openai.chat.completions.create({
-    model: 'gpt-4o',
-    messages: [{
-      role: 'user',
-      content: prompt
-    }],
-    max_tokens: 100
-  }) 
-  console.log(desc.choices[0].message.content)
-}
+app.use(express.json())
+app.use(cors({
+  origin: '*',
+}))
 
-const generateImage = async (prompt) => {
-  const imageInfo = await openai.images.generate({
-    prompt,
-    n: 1,
-    size: '512x512'
-  })
-  console.log(imageInfo.data[0].url)
-}
-
-// generateText('推荐一首李白的诗, 50字以内')
-// generateImage('大熊猫玩水的图片')
+app.post('/openai/text', generateText)
+app.post('/openai/image', generateImage)
